@@ -5,13 +5,15 @@ servername=${2}
 username="minecraft"
 password="qwerty89*"
 reponame="LinuxGSM"
-rootdir=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
-lgsmdir="${rootdir}/lgsm"
-configdir="${lgsmdir}/config-lgsm"
+rootdir="/home/${username}"
+lgsmdir="${rootdir}/${servername}/lgsm"
+configdir="${lgsmdir}/config-default/config-lgsm"
 dependenciesscript="install_server_dependencies.sh"
 
 fn_fetch_repo_from_git(){
-	git clone -b ${1} "https://github.com/GameServerManagers/LinuxGSM/"
+        branch=${1}
+        echo branch
+	git clone -b ${branch} "https://github.com/Nizhnikovsky/LinuxGSM.git"
 }
 
 
@@ -24,7 +26,7 @@ fn_install_dependencies(){
 ostype="$(awk -F "=" '/^NAME/ {gsub("\"","");print $2}' /etc/os-release)"
 
 if [[ "$ostype" == "Ubuntu" ]]; then
-     sudo apt-get update && sudo apt-get upgrade sudo apt instal git non-interactive
+     sudo apt-get update && sudo apt-get upgrade -y && sudo apt install git -y
 fi
 
 if [ ${ostype}  == "CentOS" ]; then
@@ -33,7 +35,7 @@ if [ ${ostype}  == "CentOS" ]; then
 fi
 
 if [ ${ostype}  == "Debian" ]; then
-     sudo apt-get update && sudo apt-get upgrade sudo apt instal git non-interactive
+     sudo apt-get update && sudo apt-get upgrade -y && sudo apt install git -y
 fi
 
 sudo useradd -m ${username}
@@ -41,12 +43,14 @@ usermod --password ${password} ${username}
 
 cd /home/${username} && fn_fetch_repo_from_git ${branchname}
 
-mv ${reponame} ${servername}
+mv ${reponame} ${servername} && chown -R ${username}:${username} ${servername}/
 
-fn_install_dependencies ${configdir} ${servername} ${dependenciesscript}
-su - ${username}
-cd /home/${servername} && ./linuxgsm install ${servername}
-./${servername} autoinstall
+fn_install_dependencies ${configdir} ${servername} ${dependenciesscript} && /
+
+shservername=$(echo ${servername} | awk '{ print substr( $0, 1, length($0)-6 ) }')
+
+su -c "cd /home/${username}/${servername} && ./linuxgsm ${shservername} ./${servername} auto-install" -m "${username}"
+
 
 
 
