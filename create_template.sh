@@ -25,31 +25,32 @@ fn_install_dependencies(){
 }
 ostype="$(awk -F "=" '/^NAME/ {gsub("\"","");print $2}' /etc/os-release)"
 
-if [[ "$ostype" == "Ubuntu" ]]; then
-     sudo apt-get update && sudo apt-get upgrade -y && sudo apt install git -y
+if [[ $ostype == *"Ubuntu"* ]]; then
+     sudo apt-get update -y && sudo apt-get upgrade -y && sudo apt install git -y
 fi
 
-if [ ${ostype}  == "CentOS" ]; then
+if [[ $ostype == *"CentOS"* ]]; then
 	yum install epel-release
-	yum update && yum install git
+	yum update -y && yum install git -y
 fi
 
-if [ ${ostype}  == "Debian" ]; then
-     sudo apt-get update && sudo apt-get upgrade -y && sudo apt install git -y
+if [[ $ostype == *"Debian"* ]]; then
+     sudo apt-get update -y && sudo apt-get upgrade -y && sudo apt install git -y
 fi
 
 sudo useradd -m ${username}
+
 usermod --password ${password} ${username}
 
 cd /home/${username} && fn_fetch_repo_from_git ${branchname}
 
 mv ${reponame} ${servername} && chown -R ${username}:${username} ${servername}/
 
-fn_install_dependencies ${configdir} ${servername} ${dependenciesscript} && /
+fn_install_dependencies ${configdir} ${servername} ${dependenciesscript}
 
 shservername=$(echo ${servername} | awk '{ print substr( $0, 1, length($0)-6 ) }')
 
-su -c "cd /home/${username}/${servername} && ./linuxgsm ${shservername} ./${servername} auto-install" -m "${username}"
+su -c "cd /home/${username}/${servername} && ./linuxgsm.sh ${shservername} ./${servername} auto-install" -m "${username}"
 
 
 
