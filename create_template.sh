@@ -12,6 +12,7 @@ configdir="${lgsmdir}/config-default/config-lgsm"
 dependenciesscript="install_server_dependencies.sh"
 mapdir="${rootdir}/${servername}/maps"
 serverfiles="${rootdir}/${servername}/serverfiles"
+tt="tyututTY78678JHJK5Sgjhjl809"
 
 fn_fetch_repo_from_git(){
         gittoken=${1}
